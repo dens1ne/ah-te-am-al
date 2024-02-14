@@ -32,6 +32,22 @@ def list_prof(ltype: str):
         'prof_list.html', title='Профессии, которым НУЖНО БОЛЬШЕ ТРЕНИРОВАТЬСЯ', profs=profs, ltype=ltype)
 
 
+@app.route('/answer')
+@app.route('/auto_answer')
+def auto_answer():
+    data = {
+        'title': 'Анкета',
+        'surname': 'Watny',
+        'name': 'Mark',
+        'education': 'Выше среднего',
+        'profession': 'штурман марсохода',
+        'sex': 'male',
+        'motivation': 'Всегда мечтал застрять на Марсе!',
+        'ready': 'True'
+    }
+    return render_template('auto_answer.html', **data)
+
+
 if __name__ == '__main__':
     app.config['DEBUG'] = True
     app.run(port=8080, host='127.0.0.1')
