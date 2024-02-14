@@ -79,6 +79,11 @@ def destribution():
     return render_template('distribution.html', title='Размещение', astronauts=astronauts)
 
 
+@app.route('/table/<sex>/<int:age>')
+def table(sex: str, age: int):
+    return render_template('mars_table.html', title='Оформление кают', sex=sex, age=age)
+
+
 if __name__ == '__main__':
     app.config['DEBUG'] = True
     app.config['SECRET_KEY'] = 'random_key'
