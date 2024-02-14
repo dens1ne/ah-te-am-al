@@ -1,4 +1,7 @@
-from flask import Flask, render_template, url_for
+from flask import Flask, render_template, redirect
+from flask_wtf import FlaskForm
+from wtforms import StringField, PasswordField, SubmitField
+from wtforms.validators import DataRequired
 
 app = Flask(__name__)
 
@@ -48,6 +51,29 @@ def auto_answer():
     return render_template('auto_answer.html', **data)
 
 
+
+class LoginForm(FlaskForm):
+    astronaut_id = StringField('ID астронавта', validators=[DataRequired()])
+    astronaut_password = PasswordField('Пароль астронавта', validators=[DataRequired()])
+    captain_id = StringField('ID капитана', validators=[DataRequired()])
+    captain_password = PasswordField('Пароль капитана', validators=[DataRequired()])
+    submit = SubmitField('Доступ')
+
+
+@app.route('/login')
+def login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        return redirect('/systems')
+    return render_template('login.html', title='Аварийный доступ', form=form)
+
+
+@app.route('/systems')
+def systems():
+    return '* звуки работающей системы *'
+
+
 if __name__ == '__main__':
     app.config['DEBUG'] = True
+    app.config['SECRET_KEY'] = 'random_key'
     app.run(port=8080, host='127.0.0.1')
