@@ -73,6 +73,12 @@ def systems():
     return '* звуки работающей системы *'
 
 
+@app.route('/distribution')
+def destribution():
+    astronauts = ['Ридли Скотт', 'Энди Уир', 'Марк Уотни', 'Венката Капур', 'Тедди Сандерс', 'Шон Бин']
+    return render_template('distribution.html', title='Размещение', astronauts=astronauts)
+
+
 if __name__ == '__main__':
     app.config['DEBUG'] = True
     app.config['SECRET_KEY'] = 'random_key'

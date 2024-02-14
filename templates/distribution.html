@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h3>Размещение по каютам</h3>
+    {% set bgn = "Каюта №" %}
+    {% for astronaut in astronauts %}
+        <p>{{ astronaut }} - {{bgn}}{{ loop.index }} {% if loop.first %} - капитан корабля {% endif %}</p>
+    {% endfor %}
+{% endblock %}
