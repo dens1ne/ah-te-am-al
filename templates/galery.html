@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h2 align="center">Карусель обоев<h2>
+    <div class="container">
+        <div id="carousel-demo"
+            class="carousel slide"
+            data-ride="carousel">
+            <div class="carousel-inner">
+                {% for url in urls %}
+                    {% if loop.first %}
+                        <div class="item active">
+                            <img src={{ url }}>
+                        </div>
+                    {% else %}
+                        <div class="item">
+                            <img src={{ url }}>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            <a class="left carousel-control"
+            href="#carousel-demo"
+            data-slide="prev">
+                <span class="glyphicon glyphicon-chevron-left">
+            </span>
+            </a>
+            <a class="right carousel-control"
+            href="#carousel-demo"
+            data-slide="next">
+                <span class="glyphicon glyphicon-chevron-right">
+            </span>
+            </a>
+        </div>
+    </div>
+    <div>
+        <form class="select_form" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="photo">Добавить фотографию</label><br>
+                <input type="file" class="form-control-file" id="photo" name="file">
+            </div>
+            <br>
+            <button type="submit" class="btn btn-primary">Добавить</button>
+        </form>
+    </div>
+{% endblock %}
