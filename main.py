@@ -2,6 +2,8 @@ from flask import Flask, render_template, redirect, request
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import DataRequired
+import json
+import random
 
 app = Flask(__name__)
 urls = ['https://million-wallpapers.ru/wallpapers/4/37/10737825692406921179/bolshoe-more-krasivyj-zakat.jpg',
@@ -113,6 +115,14 @@ def galery():
         urls.append(f'static/img/test_image_{len(urls) - 3}.png')
 
     return render_template('galery.html', title='Галерея с добавлением', urls=urls)
+
+
+@app.route('/member')
+def member():
+    with open('templates/comand.json') as jfile:
+        astronauts = json.load(jfile)
+
+    return render_template('member.html', title='Участник команды', astronaut=random.choice(astronauts))
 
 
 if __name__ == '__main__':

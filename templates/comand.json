@@ -1,0 +1,17 @@
+[
+  {
+    "name": "Ридли Скотт",
+    "image": "/static/img/male21andmore.png",
+    "prof": "капитан"
+  },
+  {
+    "name": "Энди Уир",
+    "image": "/static/img/male21andmore.png",
+    "prof": "астрогеолог, специалист по радиационной защите"
+  },
+  {
+    "name": "Марк Уотни",
+    "image": "/static/img/male21andmore.png",
+    "prof": "космонавт"
+  }
+]
