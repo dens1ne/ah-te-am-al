@@ -2,8 +2,11 @@
 
 {% block content %}
     <div align="center">
+        {% set astronaut = random.choice(astronauts) %}
         <h2>{{ astronaut["name"] }}</h2>
-        <img align="center" src={{ astronaut["image"] }}>
-        <p>{{ astronaut["prof"] }}</p>
+        <img alt="image" align="center" src={{ astronaut["image"] }}>
+        {% for prof in astronaut['prof'] | sort %}
+            <p>{{ prof }}</p>
+        {% endfor %}
     </div>
 {% endblock %}

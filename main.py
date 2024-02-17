@@ -122,7 +122,7 @@ def member():
     with open('templates/comand.json') as jfile:
         astronauts = json.load(jfile)
 
-    return render_template('member.html', title='Участник команды', astronaut=random.choice(astronauts))
+    return render_template('member.html', title='Участник команды', astronauts=astronauts, random=random)
 
 
 if __name__ == '__main__':
