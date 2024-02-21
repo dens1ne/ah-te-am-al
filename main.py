@@ -4,6 +4,8 @@ from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import DataRequired
 import json
 import random
+from data import db_session
+from data.users import User
 
 app = Flask(__name__)
 urls = ['https://million-wallpapers.ru/wallpapers/4/37/10737825692406921179/bolshoe-more-krasivyj-zakat.jpg',
@@ -126,6 +128,28 @@ def member():
 
 
 if __name__ == '__main__':
+    users_data = [
+        ('Scott', 'Ridley', 21, 'captain', 'research engineer', 'module_1', 'scott_chief@mars.org'),
+        ('Dorvard', 'Kventin', 18, 'crewmate', 'astronaut', 'module_1', 'dorvard_crew@mars.org'),
+        ('Croft', 'Lara', 20, 'crewmate', 'scientist', 'module_1', 'croft_science@mars.org'),
+        ('Logi', 'Tech', 25, 'crewmate', 'engineer', 'module_1', 'logi_tech__@mars.org')
+    ]
+
+    for surname, name, age, position, speciality, address, email in users_data:
+        user = User()
+        user.surname = surname
+        user.name = name
+        user.age = age
+        user.position = position
+        user.speciality = speciality
+        user.address = address
+        user.email = email
+        db_sess = db_session.create_session()
+        db_sess.add(user)
+        db_sess.commit()
+
     app.config['DEBUG'] = True
     app.config['SECRET_KEY'] = 'random_key'
+    db_session.global_init('db/database.db')
+
     app.run(port=8080, host='127.0.0.1')
