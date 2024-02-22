@@ -1,7 +1,8 @@
 from flask import Flask, render_template, redirect, request
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField
-from wtforms.validators import DataRequired
+from wtforms.fields.numeric import IntegerField
+from wtforms.validators import DataRequired, Email, NumberRange
 import json
 import random
 from data import db_session
@@ -131,6 +132,38 @@ def member():
     return render_template('member.html', title='Участник команды', astronauts=astronauts, random=random)
 
 
+class RegistrationForm(FlaskForm):
+    email = StringField('Почта', validators=[DataRequired(), Email()])
+    password = PasswordField('Пароль', validators=[DataRequired()])
+    repeat_password = PasswordField('Повторите пароль', validators=[DataRequired()])
+    surname = StringField('Фамилия', validators=[DataRequired()])
+    name = StringField('Имя', validators=[DataRequired()])
+    age = IntegerField('Возраст', validators=[DataRequired(), NumberRange(1, 150)])
+    position = StringField('Должность', validators=[DataRequired()])
+    speciality = StringField('Работа', validators=[DataRequired()])
+    address = StringField('Модуль', validators=[DataRequired()])
+    submit = SubmitField('Зарегистрироваться')
+
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        user = User()
+        user.surname = form.surname.data
+        user.name = form.name.data
+        user.email = form.email.data
+        user.password = str(hash(form.password.data))
+        user.age = form.age.data
+        user.position = form.position.data
+        user.speciality = form.speciality.data
+        user.address = form.address.data
+        db_sess.add(user)
+        db_sess.commit()
+
+    return render_template('register.html', form=form)
+
+
 @app.route('/')
 def works_log():
     jobs = db_sess.query(Job).all()
@@ -142,4 +175,4 @@ if __name__ == '__main__':
     app.config['SECRET_KEY'] = 'random_key'
     db_session.global_init('db/database.db')
 
-    app.run(port=8080, host='127.0.0.1')
+    app.run(port=5000, host='127.0.0.1')
