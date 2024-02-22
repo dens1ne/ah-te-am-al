@@ -10,3 +10,9 @@ tr.mn {
     text-align: center;
     background-color: #e6e6e6;
 }
+.tbl {
+    width: 100%;
+    text-align: center;
+    background-color: aliceblue;
+    line-height: 30px;
+}

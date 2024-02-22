@@ -6,11 +6,15 @@ import json
 import random
 from data import db_session
 from data.users import User
+from data.jobs import Job
 
 app = Flask(__name__)
 urls = ['https://million-wallpapers.ru/wallpapers/4/37/10737825692406921179/bolshoe-more-krasivyj-zakat.jpg',
         'https://gas-kvas.com/uploads/posts/2023-02/1675496354_gas-kvas-com-p-oboi-na-rabochii-stol-dlya-fonovogo-risunk-30.jpg',
         'https://wallpapers.com/images/hd/best-background-q6yyd1kpbb841wyl.jpg']
+
+db_session.global_init('db/database.db')
+db_sess = db_session.create_session()
 
 
 @app.route('/<title>')
@@ -127,9 +131,13 @@ def member():
     return render_template('member.html', title='Участник команды', astronauts=astronauts, random=random)
 
 
+@app.route('/')
+def works_log():
+    jobs = db_sess.query(Job).all()
+    return render_template('jobs.html', title='Журнал работ', jobs=jobs)
+
+
 if __name__ == '__main__':
-
-
     app.config['DEBUG'] = True
     app.config['SECRET_KEY'] = 'random_key'
     db_session.global_init('db/database.db')
