@@ -21,7 +21,14 @@
         href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
 </head>
 <body>
-<h1>Миссия Колонизация Марса</h1>
+<div class="first_line">
+    <h1 class="first_line_content">Миссия Колонизация Марса</h1>
+    {% if current_user.is_authenticated %}
+        <h3>{{ current_user.name }}</h3>
+    {% else %}
+        <h3 class="first_line_content"><a href="http://localhost:5000/login">Войти</a></h3>
+    {% endif %}
+</div>
 <h4>И на Марсе будут яблони цвести!</h4>
 <main role="main" class="container">
     {% block content %}{% endblock %}

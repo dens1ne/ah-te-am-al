@@ -1,6 +1,7 @@
 from data import db_session
 from data.users import User
 from data.jobs import Job as Jobs
+from data.department import Department
 
 db_session.global_init('database.db')
 db_sess = db_session.create_session()
@@ -32,9 +33,18 @@ db_sess = db_session.create_session()
 # db_sess.add(job)
 # db_sess.commit()
 
-members = db_sess.query(User).filter(User.address == 'module_1', User.age < 21).all()
+# department = Department()
+# department.title = 'Department Title'
+# user = db_sess.query(User).filter(User.id == 1).first()
+# department.chief_id = user.id
+# department.members = '2,3,4'
+# department.email = 'department1@email.com'
+# db_sess.add(department)
+# db_sess.commit()
 
-for member in members:
-    member.address = 'module_3'
+colonists = db_sess.query(User).all()
 
-db_sess.commit()
+for colonist in sorted(colonists, key=lambda u: u.id):
+    if colonist.address == "module_1" and colonist.age < 21:
+        print(f'<Colonist> {colonist.id} {colonist.surname} {colonist.name}')
+        colonist.address = "module_3"

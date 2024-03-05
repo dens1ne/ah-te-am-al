@@ -1,7 +1,9 @@
-from flask import Flask, render_template, redirect, request
+from flask import Flask, render_template, redirect, request, make_response, session
 from flask_wtf import FlaskForm
+from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.fields.numeric import IntegerField
+from wtforms.fields.simple import EmailField, BooleanField
 from wtforms.validators import DataRequired, Email, NumberRange
 import json
 import random
@@ -10,6 +12,10 @@ from data.users import User
 from data.jobs import Job
 
 app = Flask(__name__)
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+
 urls = ['https://million-wallpapers.ru/wallpapers/4/37/10737825692406921179/bolshoe-more-krasivyj-zakat.jpg',
         'https://gas-kvas.com/uploads/posts/2023-02/1675496354_gas-kvas-com-p-oboi-na-rabochii-stol-dlya-fonovogo-risunk-30.jpg',
         'https://wallpapers.com/images/hd/best-background-q6yyd1kpbb841wyl.jpg']
@@ -17,6 +23,11 @@ urls = ['https://million-wallpapers.ru/wallpapers/4/37/10737825692406921179/bols
 db_session.global_init('db/database.db')
 db_sess = db_session.create_session()
 
+
+@login_manager.user_loader
+def load_user(user_id: int):
+    db_sess = db_session.create_session()
+    return db_sess.query(User).get(user_id)
 
 @app.route('/<title>')
 @app.route('/index/<title>')
@@ -63,13 +74,12 @@ def auto_answer():
     return render_template('auto_answer.html', **data)
 
 
-
-class LoginForm(FlaskForm):
-    astronaut_id = StringField('ID астронавта', validators=[DataRequired()])
-    astronaut_password = PasswordField('Пароль астронавта', validators=[DataRequired()])
-    captain_id = StringField('ID капитана', validators=[DataRequired()])
-    captain_password = PasswordField('Пароль капитана', validators=[DataRequired()])
-    submit = SubmitField('Доступ')
+# class LoginForm(FlaskForm):
+#     astronaut_id = StringField('ID астронавта', validators=[DataRequired()])
+#     astronaut_password = PasswordField('Пароль астронавта', validators=[DataRequired()])
+#     captain_id = StringField('ID капитана', validators=[DataRequired()])
+#     captain_password = PasswordField('Пароль капитана', validators=[DataRequired()])
+#     submit = SubmitField('Доступ')
 
 
 """
@@ -89,12 +99,12 @@ class LoginForm(FlaskForm):
 """
 
 
-@app.route('/login')
-def login():
-    form = LoginForm()
-    if form.validate_on_submit():
-        return redirect('/systems')
-    return render_template('login.html', title='Аварийный доступ', form=form)
+# @app.route('/login')
+# def login():
+#     form = LoginForm()
+#     if form.validate_on_submit():
+#         return redirect('/systems')
+#     return render_template('login_task.html', title='Аварийный доступ', form=form)
 
 
 @app.route('/systems')
@@ -153,7 +163,7 @@ def register():
         user.surname = form.surname.data
         user.name = form.name.data
         user.email = form.email.data
-        user.password = str(hash(form.password.data))
+        user.hashed_password = form.password.data
         user.age = form.age.data
         user.position = form.position.data
         user.speciality = form.speciality.data
@@ -168,6 +178,53 @@ def register():
 def works_log():
     jobs = db_sess.query(Job).all()
     return render_template('jobs.html', title='Журнал работ', jobs=jobs)
+
+
+@app.route("/cookie_test")
+def cookie_test():
+    visits_count = int(request.cookies.get("visits_count", 0))
+    if visits_count:
+        res = make_response(
+            f"Вы пришли на эту страницу {visits_count + 1} раз")
+        res.set_cookie("visits_count", str(visits_count + 1),
+                       max_age=60 * 60 * 24 * 365 * 2)
+    else:
+        res = make_response(
+            "Вы пришли на эту страницу в первый раз за последние 2 года")
+        res.set_cookie("visits_count", '1',
+                       max_age=60 * 60 * 24 * 365 * 2)
+    return res
+
+
+@app.route("/session_test")
+def session_test():
+    visits_count = session.get('visits_count', 0)
+    session['visits_count'] = visits_count + 1
+    return make_response(
+        f"Вы пришли на эту страницу {visits_count + 1} раз")
+
+
+class LoginForm(FlaskForm):
+    email = EmailField('Почта', validators=[DataRequired(), Email()])
+    password = PasswordField('Пароль')
+    remember_me = BooleanField('Запомнить меня')
+    submit = SubmitField('Войти')
+
+
+@app.route("/login", methods=['GET', 'POST'])
+def login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        user = db_sess.query(User).filter(User.email == form.email.data).first()
+        if user and user.check_password(form.password.data):
+            login_user(user, remember=form.remember_me.data)
+            return redirect('/')
+        return render_template('login.html',
+                               message="Неправильный логин или пароль",
+                               form=form,
+                               current_user=current_user)
+    return render_template('login.html', title='Авторизация', form=form, current_user=current_user)
 
 
 if __name__ == '__main__':
