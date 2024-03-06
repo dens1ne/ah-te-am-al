@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, request, make_response, session
+from flask import Flask, render_template, redirect, request, make_response, session, jsonify
 from flask_wtf import FlaskForm
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from wtforms import StringField, PasswordField, SubmitField
@@ -9,8 +9,8 @@ from wtforms.validators import DataRequired, Email, NumberRange
 import json
 import random
 from data import db_session
-from data.users import User
 from data.jobs import Job
+from data.users import User
 
 app = Flask(__name__)
 
@@ -23,6 +23,16 @@ urls = ['https://million-wallpapers.ru/wallpapers/4/37/10737825692406921179/bols
 
 db_session.global_init('db/database.db')
 db_sess = db_session.create_session()
+
+
+@app.errorhandler(404)
+def not_found(error):
+    return make_response(jsonify({'error': 'Not found'}), 404)
+
+
+@app.errorhandler(400)
+def bad_request(_):
+    return make_response(jsonify({'error': 'Bad Request'}), 400)
 
 
 @login_manager.user_loader
@@ -133,7 +143,7 @@ def galery():
         urls.append(f'static/img/test_image_{len(urls) - 3}.png')
 
     return render_template('galery.html', title='Галерея с добавлением', urls=urls)
-
+    
 
 @app.route('/member')
 def member():
@@ -262,8 +272,8 @@ def add_job():
 
 
 if __name__ == '__main__':
+    from data import api_jobs
     app.config['DEBUG'] = True
     app.config['SECRET_KEY'] = 'random_key'
-    db_session.global_init('db/database.db')
-
+    app.register_blueprint(api_jobs.blueprint)
     app.run(port=5000, host='127.0.0.1')
