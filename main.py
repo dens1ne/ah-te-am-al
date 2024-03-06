@@ -2,6 +2,7 @@ from flask import Flask, render_template, redirect, request, make_response, sess
 from flask_wtf import FlaskForm
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from wtforms import StringField, PasswordField, SubmitField
+from wtforms.fields.datetime import DateField
 from wtforms.fields.numeric import IntegerField
 from wtforms.fields.simple import EmailField, BooleanField
 from wtforms.validators import DataRequired, Email, NumberRange
@@ -227,7 +228,37 @@ def login():
                                message="Неправильный логин или пароль",
                                form=form,
                                current_user=current_user)
-    return render_template('login.html', title='Авторизация', form=form, current_user=current_user)
+    return render_template('login.html', title='Авторизация', form=form)
+
+
+class AddJobForm(FlaskForm):
+    team_leader_id = IntegerField('ID лидера', validators=[DataRequired()])
+    job = StringField('Работа', validators=[DataRequired()])
+    work_size = IntegerField('Время на работу в часах', validators=[DataRequired()])
+    collaborators = StringField('Участники', validators=[DataRequired()])
+    start_date = DateField('Дата начала работ', format='%Y-%m-%d %H-%M-%S.%f', validators=[DataRequired()])
+    end_date = DateField('Дата начала работ', format='%Y-%m-%d %H-%M-%S.%f', validators=[DataRequired()])
+    is_finished = BooleanField('Работа завершена?', default=True)
+
+
+@app.route("/addjob")
+def add_job():
+    form = AddJobForm()
+
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        job = Job()
+        job.team_leader_id = form.team_leader_id.data
+        job.job = form.job.data
+        job.work_size = form.work_size.data
+        job.collaborators = form.collaborators.data
+        job.start_date = form.start_date.data
+        job.end_date = form.end_date.data
+        job.is_finished = form.is_finished.data
+        db_sess.add(job)
+        db_sess.commit()
+
+        return render_template('add_job.html', title="Добавить работу", message="Работа добавлена успешно", form=form)
 
 
 if __name__ == '__main__':
