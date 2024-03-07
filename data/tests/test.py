@@ -1,20 +1,18 @@
-from requests import put
+from requests import post
 
 # Correct request
-print(put('http://localhost:5000/api/jobs/2',
-          json={'team_leader_id': 2,
-                'collaborators': '3,4'}).json())
+print(post('http://localhost:5000/api/job',
+           json={'team_leader_id': 1,
+                 'job': 'Recovery of modules 5 and 6',
+                 'work_size': 30,
+                 'collaborators': '2,3,4',
+                 'start_date': '2024-01-01 00:00:00.000000',
+                 'end_date': '2024-02-01 00:00:00.000000',
+                 'is_finished': False}))
 
-# Wrong parameter
-print(put('http://localhost:5000/api/jobs/2000',
-          json={'team_leader_id': 2,
-                'collaborators': '3,4'}).json())
-print(put('http://localhost:5000/api/jobs/qqq',
-          json={'team_leader_id': 2,
-                'collaborators': '3,4'}).json())
+# Empty request
+print(post('http://localhost:5000/api/job', json={}))
 
-# Wrong data
-print(put('http://localhost:5000/api/jobs/2',
-          json={'team_leader_id': 2,
-                'collaborators': '3,4',
-                'useless parameter': 'abcdefg'}).json())
+# Wrong request
+print(post('http://localhost:5000/api/job',
+           json={'team_leader_id': 1}))

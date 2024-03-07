@@ -3,16 +3,25 @@
 {% block content %}
     <h1>Добавить работу</h1>
     <form action="" method="post">
-        {{ form.hidden_tag }}
+        {{ form.hidden_tag() }}
         {% for elem in [form.team_leader_id, form.job, form.work_size, form.collaborators, form.start_date, form.end_date] %}
             <p>
                 {{ elem.label }}
                 {{ elem(class="form-control") }}
-                {% for error in form.errors %}
+                {% for error in elem.errors %}
                     <div class="alert alert-danger" role="alert">
                         {{ error }}
                     </div>
                 {% endfor %}
             </p>
-    {% endfor %}
+        {% endfor %}
+        <p>{{ form.is_finished() }} {{ form.is_finished.label }}</p>
+        {% if message %}
+            <div class="alert alert-success" role="alert">
+                {{ message }}
+            </div>
+        {% endif %}
+        <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
+
     </form>
+{% endblock %}

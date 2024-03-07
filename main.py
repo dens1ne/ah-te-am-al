@@ -11,6 +11,7 @@ import random
 from data import db_session
 from data.jobs import Job
 from data.users import User
+import datetime
 
 app = Flask(__name__)
 
@@ -222,6 +223,12 @@ class LoginForm(FlaskForm):
     submit = SubmitField('Войти')
 
 
+@app.route("/logout")
+def logout():
+    logout_user()
+    return redirect('/')
+
+
 @app.route("/login", methods=['GET', 'POST'])
 def login():
     form = LoginForm()
@@ -246,12 +253,13 @@ class AddJobForm(FlaskForm):
     job = StringField('Работа', validators=[DataRequired()])
     work_size = IntegerField('Время на работу в часах', validators=[DataRequired()])
     collaborators = StringField('Участники', validators=[DataRequired()])
-    start_date = DateField('Дата начала работ', format='%Y-%m-%d %H-%M-%S.%f', validators=[DataRequired()])
-    end_date = DateField('Дата начала работ', format='%Y-%m-%d %H-%M-%S.%f', validators=[DataRequired()])
-    is_finished = BooleanField('Работа завершена?', default=True)
+    start_date = DateField('Дата начала работ', format='%Y-%m-%d')
+    end_date = DateField('Дата конца работ', format='%Y-%m-%d')
+    is_finished = BooleanField('Работа завершена?', default=False)
+    submit = SubmitField("Добавить")
 
 
-@app.route("/addjob")
+@app.route("/addjob", methods=['GET', 'POST'])
 def add_job():
     form = AddJobForm()
 
@@ -262,17 +270,19 @@ def add_job():
         job.job = form.job.data
         job.work_size = form.work_size.data
         job.collaborators = form.collaborators.data
-        job.start_date = form.start_date.data
-        job.end_date = form.end_date.data
+        job.start_date = datetime.datetime.strptime(f'{form.start_date.data} 00:00:00.000000', '%Y-%m-%d %H:%M:%S.%f')
+        job.end_date = datetime.datetime.strptime(f'{form.end_date.data} 00:00:00.000000', '%Y-%m-%d %H:%M:%S.%f/')
         job.is_finished = form.is_finished.data
         db_sess.add(job)
         db_sess.commit()
 
         return render_template('add_job.html', title="Добавить работу", message="Работа добавлена успешно", form=form)
 
+    return render_template('add_job.html', title="Добавить работу", form=form)
+
 
 if __name__ == '__main__':
-    from data import api_jobs
+    from data import api_jobs, api_users
     app.config['DEBUG'] = True
     app.config['SECRET_KEY'] = 'random_key'
     app.register_blueprint(api_jobs.blueprint)

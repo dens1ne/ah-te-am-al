@@ -86,11 +86,13 @@ def edit_job(job_id: int):
     job = db_sess.query(Job).get(job_id)
 
     if not job:
-        return make_response(jsonify({'error': 'Empty request'}), 404)
+        return make_response(jsonify({'error': 'Job not found'}), 404)
+    elif not request.json:
+        return make_response(jsonify({'error': 'Empty request'}))
     elif not all(
             key in ['team_leader_id', 'job', 'work_size', 'start_date', 'end_date', 'is_finished', 'collaborators']
             for key in request.json):
-        return make_response(jsonify({'error': 'Wrong request'}), 404)
+        return make_response(jsonify({'error': 'Bad request'}), 404)
 
     for key in request.json:
         if key == 'team_leader_id':

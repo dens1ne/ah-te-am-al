@@ -24,9 +24,10 @@
 <div class="first_line">
     <h1 class="first_line_content">Миссия Колонизация Марса</h1>
     {% if current_user.is_authenticated %}
-        <h3>{{ current_user.name }}</h3>
+        <a href="http://localhost:5000/logout" role="button" class="user_name">{{ current_user.name }}</a>
     {% else %}
-        <h3 class="first_line_content"><a href="http://localhost:5000/login">Войти</a></h3>
+        <a class="btn btn-outline-primary" href="http://localhost:5000/login" role="button">Войти</a>
+        <a class="btn btn-outline-success" href="http://localhost:5000/register" role="button">Зарегистрироваться</a>
     {% endif %}
 </div>
 <h4>И на Марсе будут яблони цвести!</h4>
