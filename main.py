@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, request, make_response, session, jsonify
+from flask import Flask, render_template, redirect, request, make_response, session, jsonify, abort
 from flask_wtf import FlaskForm
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from wtforms import StringField, PasswordField, SubmitField
@@ -248,7 +248,7 @@ def login():
     return render_template('login.html', title='Авторизация', form=form)
 
 
-class AddJobForm(FlaskForm):
+class JobForm(FlaskForm):
     team_leader_id = IntegerField('ID лидера', validators=[DataRequired()])
     job = StringField('Работа', validators=[DataRequired()])
     work_size = IntegerField('Время на работу в часах', validators=[DataRequired()])
@@ -256,12 +256,13 @@ class AddJobForm(FlaskForm):
     start_date = DateField('Дата начала работ', format='%Y-%m-%d')
     end_date = DateField('Дата конца работ', format='%Y-%m-%d')
     is_finished = BooleanField('Работа завершена?', default=False)
-    submit = SubmitField("Добавить")
+    submit = SubmitField("Готово")
 
 
-@app.route("/addjob", methods=['GET', 'POST'])
+@app.route("/job", methods=['GET', 'POST'])
+@login_required
 def add_job():
-    form = AddJobForm()
+    form = JobForm()
 
     if form.validate_on_submit():
         db_sess = db_session.create_session()
@@ -271,7 +272,7 @@ def add_job():
         job.work_size = form.work_size.data
         job.collaborators = form.collaborators.data
         job.start_date = datetime.datetime.strptime(f'{form.start_date.data} 00:00:00.000000', '%Y-%m-%d %H:%M:%S.%f')
-        job.end_date = datetime.datetime.strptime(f'{form.end_date.data} 00:00:00.000000', '%Y-%m-%d %H:%M:%S.%f/')
+        job.end_date = datetime.datetime.strptime(f'{form.end_date.data} 00:00:00.000000', '%Y-%m-%d %H:%M:%S.%f')
         job.is_finished = form.is_finished.data
         db_sess.add(job)
         db_sess.commit()
@@ -279,6 +280,67 @@ def add_job():
         return render_template('add_job.html', title="Добавить работу", message="Работа добавлена успешно", form=form)
 
     return render_template('add_job.html', title="Добавить работу", form=form)
+
+
+@app.route('/job/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit_job(id: int):
+    form = JobForm()
+    if request.method == 'GET':
+        db_sess = db_session.create_session()
+        if current_user.id == 1:
+            job = db_sess.query(Job).filter(Job.id == id).first()
+        else:
+            job = db_sess.query(Job).filter(Job.id == id,
+                                                 Job.team_leader == current_user).first()
+
+        if job:
+            form.team_leader_id.data = job.team_leader_id
+            form.job.data = job.job
+            form.work_size.data = job.work_size
+            form.collaborators.data = job.collaborators
+            form.start_date.data = job.start_date
+            form.end_date.data = job.end_date
+            form.is_finished.data = job.is_finished
+        else:
+            abort(404)
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        if current_user.id == 1:
+            job = db_sess.query(Job).filter(Job.id == id).first()
+        else:
+            job = db_sess.query(Job).filter(Job.id == id,
+                                            Job.team_leader == current_user).first()
+
+        if job:
+            job.team_leader_id = form.team_leader_id.data
+            job.job = form.job.data
+            job.work_size = form.work_size.data
+            job.collaborators = form.collaborators.data
+            job.start_date = form.start_date.data
+            job.end_date = form.end_date.data
+            job.is_finished = form.is_finished.data
+            db_sess.commit()
+            return redirect('/')
+        else:
+            abort(404)
+
+    return render_template('add_job.html', title='Изменить работу', form=form)
+
+
+@app.route('/job_delete/<int:id>', methods=['GET', 'POST'])
+@login_required
+def job_delete(id: int):
+    db_sess = db_session.create_session()
+    job = db_sess.query(Job).filter(Job.id == id, Job.team_leader == current_user).first()
+
+    if job:
+        db_sess.delete(job)
+        db_sess.commit()
+    else:
+        abort(404)
+
+    return redirect('/')
 
 
 if __name__ == '__main__':

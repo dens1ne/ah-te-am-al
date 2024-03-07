@@ -40,3 +40,12 @@ a {
 .first_line_content {
     display: inline-block;
 }
+
+.edit_jobs {
+    display: inline-block;
+}
+
+.title_link {
+    float: left;
+    font-size: 25pt;
+}

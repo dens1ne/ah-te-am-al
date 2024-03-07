@@ -1,18 +1,12 @@
-from requests import post
+from requests import delete, get
 
 # Correct request
-print(post('http://localhost:5000/api/job',
-           json={'team_leader_id': 1,
-                 'job': 'Recovery of modules 5 and 6',
-                 'work_size': 30,
-                 'collaborators': '2,3,4',
-                 'start_date': '2024-01-01 00:00:00.000000',
-                 'end_date': '2024-02-01 00:00:00.000000',
-                 'is_finished': False}))
-
-# Empty request
-print(post('http://localhost:5000/api/job', json={}))
+print(get(url='http://localhost:5000/api/jobs').json())
+print(delete('http://localhost:5000/api/jobs/4').json())
+print(get(url='http://localhost:5000/api/jobs').json())
 
 # Wrong request
-print(post('http://localhost:5000/api/job',
-           json={'team_leader_id': 1}))
+print(delete('http://localhost:5000/api/jobs/9000').json())
+
+# Wrong type of parameter
+print(delete('http://localhost:5000/api/jobs/five').json())

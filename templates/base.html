@@ -21,13 +21,14 @@
         href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
 </head>
 <body>
+
 <div class="first_line">
     <h1 class="first_line_content">Миссия Колонизация Марса</h1>
     {% if current_user.is_authenticated %}
-        <a href="http://localhost:5000/logout" role="button" class="user_name">{{ current_user.name }}</a>
+        <a href="/logout" role="button" class="user_name">{{ current_user.name }}</a>
     {% else %}
-        <a class="btn btn-outline-primary" href="http://localhost:5000/login" role="button">Войти</a>
-        <a class="btn btn-outline-success" href="http://localhost:5000/register" role="button">Зарегистрироваться</a>
+        <a class="btn btn-outline-primary" href="/login" role="button">Войти</a>
+        <a class="btn btn-outline-success" href="/register" role="button">Зарегистрироваться</a>
     {% endif %}
 </div>
 <h4>И на Марсе будут яблони цвести!</h4>
