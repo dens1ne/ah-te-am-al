@@ -1,3 +1,5 @@
+from tkinter import Image
+
 from flask import Flask, render_template, redirect, request, make_response, session, jsonify, abort
 from flask_wtf import FlaskForm
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
@@ -12,6 +14,7 @@ from data import db_session
 from data.jobs import Job
 from data.users import User
 import datetime
+import requests
 
 app = Flask(__name__)
 
@@ -277,7 +280,7 @@ def add_job():
         db_sess.add(job)
         db_sess.commit()
 
-        return render_template('add_job.html', title="Добавить работу", message="Работа добавлена успешно", form=form)
+        return redirect('/')
 
     return render_template('add_job.html', title="Добавить работу", form=form)
 
@@ -332,7 +335,12 @@ def edit_job(id: int):
 @login_required
 def job_delete(id: int):
     db_sess = db_session.create_session()
-    job = db_sess.query(Job).filter(Job.id == id, Job.team_leader == current_user).first()
+
+    if current_user.id == 1:
+        job = db_sess.query(Job).filter(Job.id == id).first()
+    else:
+        job = db_sess.query(Job).filter(Job.id == id,
+                                        Job.team_leader == current_user).first()
 
     if job:
         db_sess.delete(job)
@@ -341,6 +349,39 @@ def job_delete(id: int):
         abort(404)
 
     return redirect('/')
+
+
+@app.route('/user_show/<int:id>')
+def user_show(id: int):
+    user = requests.get(f'http://127.0.0.1:5000/api/users/{id}').json()
+    print(user)
+
+    geocoder_api_server = "http://geocode-maps.yandex.ru/1.x/"
+
+    geocoder_params = {
+        "apikey": "40d1649f-0493-4b70-98ba-98533de7710b",
+        "geocode": user['city_from'],
+        "format": "json"}
+
+    response = requests.get(geocoder_api_server, params=geocoder_params)
+    json_response = response.json()
+    toponym = json_response["response"]["GeoObjectCollection"][
+        "featureMember"][0]["GeoObject"]
+    toponym_coodrinates = toponym["Point"]["pos"]
+    toponym_longitude, toponym_lattitude = toponym_coodrinates.split(" ")
+    map_params = {
+        "apikey": 'be02e27d-583b-4aad-b55e-9787d9d25384',
+        "z": 10,
+        "ll": ",".join([toponym_longitude, toponym_lattitude]),
+        "l": "map"
+    }
+    map_api_server = "https://static-maps.yandex.ru/v1?"
+    response = requests.get(map_api_server, params=map_params)
+
+    with open('static/img/temp_image.jpg', 'wb') as image_file:
+        image_file.write(response.content)
+
+    return render_template('nostalgy.html', title='Ностальгия', user=user)
 
 
 if __name__ == '__main__':
