@@ -21,7 +21,7 @@
                 <td>{% if job.is_finished == 0 %} Is not finished {% else %} Finished {% endif %}</td>
             </tr>
         </table>
-        {% if current_user.is_authenticated and current_user == job.user or current_user.id == 1 %}
+        {% if current_user.is_authenticated and current_user == job.team_leader or current_user.id == 1 %}
             <div class="edit_jobs">
                 <a href="/job/{{ job.id }}" class="btn btn-warning">Изменить</a>
                 <a href="/job_delete/{{ job.id }}" class="btn btn-danger">Удалить</a>
