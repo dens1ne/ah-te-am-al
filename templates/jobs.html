@@ -5,9 +5,11 @@
     {% if current_user.is_authenticated %}
         <div class="edit_jobs">
             <a href="/job" class="btn btn-secondary">Добавить</a>
-            <a href="/departments" class="btn btn-secondary">Департаменты</a>
         </div>
     {% endif %}
+    <div class="edit_jobs">
+        <a href="/departments" class="btn btn-secondary">Департаменты</a>
+    </div>
     {% for job in jobs %}
         <h3>Action #{{ loop.index }}</h3>
         <table class="tbl">
