@@ -2,7 +2,12 @@
 
 {% block content %}
     <h2 align="center">Works log</h2>
-
+    {% if current_user.is_authenticated %}
+        <div class="edit_jobs">
+            <a href="/job" class="btn btn-secondary">Добавить</a>
+            <a href="/departments" class="btn btn-secondary">Департаменты</a>
+        </div>
+    {% endif %}
     {% for job in jobs %}
         <h3>Action #{{ loop.index }}</h3>
         <table class="tbl">
@@ -28,10 +33,4 @@
             </div>
         {% endif %}
     {% endfor %}
-    <br>
-    {% if current_user.is_authenticated %}
-        <div class="edit_jobs">
-            <a href="/job" class="btn btn-success">Добавить</a>
-        </div>
-    {% endif %}
 {% endblock %}

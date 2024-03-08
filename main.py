@@ -13,6 +13,7 @@ import random
 from data import db_session
 from data.jobs import Job
 from data.users import User
+from data.department import Department
 import datetime
 import requests
 
@@ -262,6 +263,14 @@ class JobForm(FlaskForm):
     submit = SubmitField("Готово")
 
 
+class DepartmentForm(FlaskForm):
+    title = StringField('Название департамента', validators=[DataRequired()])
+    chief_id = IntegerField('ID лидера', validators=[DataRequired()])
+    members = StringField('Жители', validators=[DataRequired()])
+    email = StringField('Почта', validators=[Email(), DataRequired()])
+    submit = SubmitField("Готово")
+
+
 @app.route("/job", methods=['GET', 'POST'])
 @login_required
 def add_job():
@@ -382,6 +391,93 @@ def user_show(id: int):
         image_file.write(response.content)
 
     return render_template('nostalgy.html', title='Ностальгия', user=user)
+
+
+@app.route('/departments')
+def departments():
+    db_sess = db_session.create_session()
+    departments = db_sess.query(Department).all()
+    return render_template('departments.html', title='Департаменты', departments=departments)
+
+
+@app.route('/add_departments', methods=['GET', 'POST'])
+@login_required
+def add_departments():
+    form = DepartmentForm()
+
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        department = Department()
+        department.title = form.title.data
+        department.chief_id = form.chief_id.data
+        department.members = form.members.data
+        department.email = form.email.data
+        db_sess.add(department)
+        db_sess.commit()
+
+        return redirect('/departments')
+
+    return render_template('add_departments.html', title="Добавить департамент", form=form)
+
+
+@app.route('/edit_departments/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit_departments(id: int):
+    form = DepartmentForm()
+    if request.method == 'GET':
+        db_sess = db_session.create_session()
+        if current_user.id == 1:
+            department = db_sess.query(Department).filter(Department.id == id).first()
+        else:
+            department = db_sess.query(Job).filter(Department.id == id,
+                                                 Department.chief == current_user).first()
+
+        if department:
+            form.title.data = department.title
+            form.chief_id.data = department.chief_id
+            form.members.data = department.members
+            form.email.data = department.email
+        else:
+            abort(404)
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        if current_user.id == 1:
+            department = db_sess.query(Department).filter(Department.id == id).first()
+        else:
+            department = db_sess.query(Job).filter(Department.id == id,
+                                                   Department.chief == current_user).first()
+
+        if department:
+            department.title = form.title.data
+            department.chief_id = form.chief_id.data
+            department.members = form.members.data
+            department.email = form.email.data
+            db_sess.commit()
+            return redirect('/departments')
+        else:
+            abort(404)
+
+    return render_template('add_departments.html', title='Изменить департамент', form=form)
+
+
+@app.route('/departments_delete/<int:id>', methods=['GET', 'POST'])
+@login_required
+def departments_delete(id: int):
+    db_sess = db_session.create_session()
+
+    if current_user.id == 1:
+        department = db_sess.query(Department).filter(Department.id == id).first()
+    else:
+        department = db_sess.query(Job).filter(Department.id == id,
+                                               Department.chief == current_user).first()
+
+    if department:
+        db_sess.delete(department)
+        db_sess.commit()
+    else:
+        abort(404)
+
+    return redirect('/departments')
 
 
 if __name__ == '__main__':

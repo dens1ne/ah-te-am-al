@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Добавить/изменить департамент</h1>
+    <form action="" method="post">
+        {{ form.hidden_tag() }}
+        {% for elem in [form.title, form.chief_id, form.members, form.email] %}
+            <p>
+                {{ elem.label }}
+                {{ elem(class="form-control") }}
+                {% for error in elem.errors %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ error }}
+                    </div>
+                {% endfor %}
+            </p>
+        {% endfor %}
+        {% if message %}
+            <div class="alert alert-success" role="alert">
+                {{ message }}
+            </div>
+        {% endif %}
+        <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
+
+    </form>
+{% endblock %}
