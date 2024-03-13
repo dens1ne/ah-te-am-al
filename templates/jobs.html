@@ -18,6 +18,7 @@
                 <td>Team leader</td>
                 <td>Duration</td>
                 <td>List of collaborators</td>
+                <td>Hazard level</td>
                 <td>Is finished</td>
             </tr>
             <tr>
@@ -25,6 +26,7 @@
                 <td>{{ job.team_leader.name }} {{ job.team_leader.surname }}</td>
                 <td>{{ job.work_size }} hours</td>
                 <td>{{ job.collaborators }}</td>
+                <td>{{ job.hazard_level.name }}</td>
                 <td>{% if job.is_finished == 0 %} Is not finished {% else %} Finished {% endif %}</td>
             </tr>
         </table>

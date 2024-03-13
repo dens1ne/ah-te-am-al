@@ -1,6 +1,7 @@
 from flask import Flask, render_template, redirect, request, make_response, session, jsonify, abort
 from flask_wtf import FlaskForm
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
+from flask_restful import abort, Api
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.fields.datetime import DateField
 from wtforms.fields.numeric import IntegerField
@@ -9,13 +10,16 @@ from wtforms.validators import DataRequired, Email, NumberRange
 import json
 import random
 from data import db_session
+from data.hazard_levels import HazardLevels
 from data.jobs import Job
 from data.users import User
 from data.department import Department
+from data.users_resource import UsersResource, UsersListResource
 import datetime
 import requests
 
 app = Flask(__name__)
+api = Api(app)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -482,5 +486,9 @@ if __name__ == '__main__':
     from data import api_jobs, api_users
     app.config['DEBUG'] = True
     app.config['SECRET_KEY'] = 'random_key'
+
+    api.add_resource(UsersResource, '/api/v2/users/<int:user_id>')
+    api.add_resource(UsersListResource, '/api/v2/users')
+
     app.register_blueprint(api_jobs.blueprint)
     app.run(port=5000, host='127.0.0.1')

@@ -13,6 +13,9 @@ class Job(SqlAlchemyBase, SerializerMixin):
     team_leader_id = sqlalchemy.Column(sqlalchemy.Integer,
                                        sqlalchemy.ForeignKey("users.id"))
     team_leader = orm.relationship('User')
+    hazard_level_id = sqlalchemy.Column(sqlalchemy.Integer,
+                                        sqlalchemy.ForeignKey("hazard_levels.id"))
+    hazard_level = orm.relationship('HazardLevels')
     job = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     work_size = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)
     collaborators = sqlalchemy.Column(sqlalchemy.String, nullable=True)

@@ -1,1 +1,1 @@
-from . import users, jobs
+from data import users, hazard_levels, jobs, department

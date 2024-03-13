@@ -1,12 +1,24 @@
-from requests import delete, get
+from requests import delete, get, post
 
 # Correct request
-print(get(url='http://localhost:5000/api/jobs').json())
-print(delete('http://localhost:5000/api/jobs/4').json())
-print(get(url='http://localhost:5000/api/jobs').json())
+print(get('http://localhost:5000/api/v2/users').json())
+print(get('http://localhost:5000/api/v2/users/1').json())
 
-# Wrong request
-print(delete('http://localhost:5000/api/jobs/9000').json())
+response = post('http://localhost:5000/api/v2/users',
+           json={"surname": "surname",
+                 "name": "name",
+                 "age": 14,
+                 "position": "position",
+                 "speciality": "speciality",
+                 "email": "email",
+                 "password": "password",
+                 "address": "address",
+                 "city_from": "city"})
+print(response.json())
 
-# Wrong type of parameter
-print(delete('http://localhost:5000/api/jobs/five').json())
+print(delete(f'http://localhost:5000/api/v2/users/{response.json().get("user_id")}').json())
+
+# Wrong input
+print(get('http://localhost:5000/api/v2/users/100000').json())
+print(delete('http://localhost:5000/api/v2/users/-1').json())
+print(post('http://localhost:5000/api/v2', json={}))
